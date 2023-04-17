@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from random import choice, randint, shuffle
+import json
 
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
@@ -24,6 +25,7 @@ def generate_password():
     window.clipboard_clear()
     window.clipboard_append(generated_password)
 
+
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
 
@@ -31,22 +33,39 @@ def save():
     website = website_input.get()
     email = email_input.get()
     password = password_input.get()
+    new_data = {
+        website: {
+            "email": email,
+            "password": password,
+        }
+    }
 
     if len(website) == 0 or len(password) == 0:
         messagebox.showinfo(title="Oops",
                             message="Please make sure you haven't left any fields empty.")
     else:
-        is_ok = messagebox.askokcancel(title=website, message=f"These are the details you entered: \nEmail: {email} "
-                                                              f"\nPassword: {password} \nIs it ok to save?")
-
-        if is_ok:
-            with open("my_password.txt", "a") as file:
-                file.write(f"{website}, {email}, {password}\n")
-
+        try:
+            with open("my_password.json", "r") as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            with open("my_password.json", "w") as file:
+                json.dump(new_data, file)
+        else:
+            data.updata(new_data)
+            with open("my_password.json", "w") as file:
+                json.dump(data, file, indent=4)
+        finally:
             website_input.delete(0, "end")
             email_input.delete(0, "end")
             email_input.insert(0, "username@gmail.com")
             password_input.delete(0, "end")
+
+
+# ---------------------------Search Password ----------------------------#
+def search_password():
+    print("search")
+
+
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -70,22 +89,24 @@ password_label = tk.Label(text="Password:")
 password_label.grid(column=0, row=3, sticky="w")
 
 # Entry
-website_input = tk.Entry(window, width=45)
-website_input.grid(column=1, row=1, columnspan=2, sticky="w")
+website_input = tk.Entry(window, width=27)
+website_input.grid(column=1, row=1, sticky="w")
 website_input.focus()
 
 email_input = tk.Entry(width=45)
 email_input.grid(column=1, row=2, columnspan=2, sticky="w")
 email_input.insert(0, "username@gmail.com")
 
-password_input = tk.Entry(width=25)
+password_input = tk.Entry(width=27)
 password_input.grid(column=1, row=3, sticky="w")
 
 # Button
-generate_button = tk.Button(text="Generate Password", command=generate_password)
+search_button = tk.Button(text="Search", command=search_password, highlightthickness=0)
+search_button.grid(column=2, row=1, sticky="ew")
+generate_button = tk.Button(text="Generate Password", command=generate_password, highlightthickness=0)
 generate_button.grid(column=2, row=3, sticky="ew")
 
-add_button = tk.Button(text="Add", width=41, command=save)
+add_button = tk.Button(text="Add", width=41, command=save, highlightthickness=0)
 add_button.grid(column=1, row=4, columnspan=2, sticky="ew")
 
 window.mainloop()
