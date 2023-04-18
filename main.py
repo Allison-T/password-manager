@@ -35,8 +35,8 @@ def save():
     password = password_input.get()
     new_data = {
         website: {
-            "email": email,
-            "password": password,
+            'email': email,
+            'password': password,
         }
     }
 
@@ -49,9 +49,9 @@ def save():
                 data = json.load(file)
         except FileNotFoundError:
             with open("my_password.json", "w") as file:
-                json.dump(new_data, file)
+                json.dump(new_data, file, indent=4)
         else:
-            data.updata(new_data)
+            data.update(new_data)
             with open("my_password.json", "w") as file:
                 json.dump(data, file, indent=4)
         finally:
@@ -63,9 +63,20 @@ def save():
 
 # ---------------------------Search Password ----------------------------#
 def search_password():
-    print("search")
-
-
+    website = website_input.get()
+    try:
+        with open("my_password.json") as file:
+            data = json.load(file)
+    except FileNotFoundError:
+        messagebox.showinfo(title=website, message="No Data File Found.")
+    else:
+        if website in data:
+            email = data[website]["email"]
+            password = data[website]["password"]
+            messagebox.showinfo(title=website,
+                                message=f"Email: {email}\nPassword: {password}")
+        else:
+            messagebox.showinfo(title="Error", message=f"No detail for {website} exists.")
 
 
 # ---------------------------- UI SETUP ------------------------------- #
